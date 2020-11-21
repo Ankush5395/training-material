@@ -1,0 +1,104 @@
+docker search hello
+docker pull
+docker ps
+docker ps -a
+docker pull ubuntu:xenial
+docker run -it ubuntu:xenial
+docker run -itd ubuntu:xenial
+
+docker attach 
+docker exec -it <container id> /bin/bash
+docker run -i ubuntu:xenial
+docker run -it ubuntu:xenial
+
+docker stop
+docker rm
+docker rm -f 
+docker start
+
+docker inspect
+
+
+docker cp 00e52efefcef:/usr/local/apache2/htdocs/index.html .
+
+vi index.html
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My Webpage</h1>
+
+<p>This is my first ever html file.</p>
+
+</body>
+</html>
+docker cp index.html 00e52efefcef:/usr/local/apache2/htdocs/index.html
+
+docker run -dit --name my-apache-app -p 8085:80 -v "$PWD/website":/usr/local/apache2/htdocs tomcat
+
+
+docker file
+
+FROM tomcat
+MAINTAINER sai@abc.com
+RUN apt-get update
+RUN apt-get -y upgrade
+WORKDIR /usr/local/tomcat
+COPY tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
+COPY context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
+EXPOSE 8080
+CMD catalina.sh run
+
+# cat <<EOF > tomcat-users.xml
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+              version="1.0">
+  <user username="admin" password="secret" roles="manager-gui"/>
+</tomcat-users>
+EOF
+
+# cat <<EOF> context.xml
+<Context antiResourceLocking="false" privileged="true" >
+    <!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+        allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+    <Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+</Context>
+EOF
+
+docker build .
+
+docker run -d -p 8085:8080 --name some_name ea8e2683c9bc
+docker cp /var/lib/jenkins/workspace/edureka_demo/target/addressbook.war 0861698fa5cb9e:/usr/local/tomcat/webapps/addressbook.war
+
+docker diff 329ae30ba443
+
+docker save 5cb3aa00f899 -o alpine.tar.  --- saves a image as a file
+docker rmi 5cb3aa00f899
+docker load -i alpine.tar  --- loads an image from a file
+
+docker commit -- Create a new image from a container with changes
+
+Docker export -- exports a container
+Docker import 
+
+
+
+
+docker pull registry:2
+docker run -d -p 5000:5000 registry:2
+
+docker tag 7666b9580d0d 192.168.56.101:5000/myimage
+docker push 192.168.56.101:5000/myimage
+
+docker login
+
+docker tag 7666b9580d0d edurekakumar/edureka:myimage
+docker push edurekakumar/edureka:myimage
+ 
+docker diff 187e60a46b69docker p
+
+https://devops-edureka.slack.com/messages/CG4UL7W8H/
+
+docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v /path/on/host/data:/data portainer/portainer
+Windowscl

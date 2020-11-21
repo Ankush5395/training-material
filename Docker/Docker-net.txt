@@ -1,0 +1,24 @@
+docker network ls
+
+docker network inspect bridge | grep Subnet
+docker network create --driver bridge alpine-net
+
+docker run -dit --name alpine1 --network alpine-net alpine
+docker run -dit --name alpine2 --network alpine-net alpine
+docker run -dit --name alpine3  alpine
+docker run -dit --name alpine4 --network alpine-net alpine
+
+docker network connect bridge alpine4
+
+docker container stop alpine1 alpine2 alpine3 alpine4
+docker container rm alpine1 alpine2 alpine3 alpine4
+
+embeded dns
+
+docker network rm alpine-net
+
+docker run -dit --name alpine1 --network host alpine
+
+ip a
+veth
+

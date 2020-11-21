@@ -1,0 +1,77 @@
+
+
+
+docker swarm init --advertise-addr 192.168.56.101
+docker node ls
+docker swarm join --token 	
+docker node ls
+
+docker swarm join-token worker
+
+docker service create --name Apache2 --mode global -d -p 8003:80 httpd
+docker service ls 
+
+curl localhost:8003
+#global = mode means.. one replca on each node
+explain global and replicated
+
+global = mode means.. one replca on each node
+
+docker service scale Apache2=3
+
+#can run curl on any nodes of the cluster..
+docker network create -d overlay myoverlay1
+docker network ls
+create a ingress network
+
+
+docker service create --name webapp  -d --network myoverlay1 -p 8001:80 hshar/webapp
+docker service create --name mysql  -d --network myoverlay1 -p 3306:3306 mysql
+docker service scale webapp=3
+
+#STACK--- Multicontainer application.
+
+docker-compose build
+
+docker stack deploy nodeapp -c docker-compose.yml
+----------
+version: '3'
+
+services:
+    web:
+        image: takacsmark/swarm-example:1.0
+        ports:
+            - 80:3000
+        networks:
+            - mynet
+    db:
+        image:  mongo:4.0.3
+        networks:
+            - mynet
+
+networks:
+    mynet:
+---------------
+
+docker stack ls
+
+docker stack services nodeapp
+
+docker stack ps nodeapp
+
+docker service scale nodeapp_web=4
+
+docker swarm leave
+docker stack ps nodeapp
+
+docker node rm <nodeid>
+docker service update --force nodeapp_web
+
+
+docker service create -p 8888:8080 --constraint=node.role==manager --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock dockersamples/visualizer
+
+docker node update --availability=active myvm2
+docker node update --availability=drain myvm2
+
+
+9373780117

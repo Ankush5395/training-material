@@ -1,0 +1,326 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2511
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fswiss\fcharset0 Helvetica-Oblique;
+}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw12240\paperh15840\margl1440\margr1440\vieww18240\viewh16280\viewkind1
+\deftab720
+\pard\pardeftab720\ri0\sl276\slmult1\sa200\partightenfactor0
+
+\f0\b\fs56 \cf0 \
+Install Ansible\
+\pard\pardeftab720\ri0\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b0\fs22 \cf0 yum install ansible\
+\pard\pardeftab720\ri0\sl276\slmult1\sa200\partightenfactor0
+
+\f2\i \cf0 5 machines\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 ansible\
+webserver1\
+webserver2\
+dbserver\
+services\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\i0 \cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Generate ssh-key
+\f1\b0 \
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 ssh-keygen\
+ssh-copy-id webserver1\
+ssh-copy-id webserver2\
+ssh-copy-id dbserver\
+ssh-copy-id services\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Copy the host files
+\f1\b0 \
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 scp /etc/hosts webserver1:/etc/hosts\
+scp /etc/hosts webserver2:/etc/hosts\
+scp /etc/hosts dbserver:/etc/hosts\
+scp /etc/hosts services:/etc/hosts\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 create invertory file\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 vi inventory\
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 [all:children]\
+web\
+db\
+srv\
+\
+[web]\
+webserver[1:2]\
+\
+[db]\
+dbserver\
+\
+[srv]\
+services\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Now Ansible ad-hoc commands\
+\pard\pardeftab720\ri0\partightenfactor0
+
+\f1\b0 \cf0 ansible -i invertory --list-hosts all\
+ansible -i invertory --list-hosts web\
+ansible -i invertory --list-hosts db\
+ansible -i invertory --list-hosts srv\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Now indroduced modules "-m"
+\f1\b0 \
+ansible all -i invertory -m ping\
+\
+
+\f0\b Introduce module for example yum over 750 modules\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://docs.ansible.com/ansible/latest/modules/modules_by_category.html"}}{\fldrslt \cf0 https://docs.ansible.com/ansible/latest/modules/modules_by_category.html}}\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 ansible webserver1 -i invertory -m setup\
+\
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 ansible web -i invertory  -m yum -a "name=httpd state=present"\
+ansible web -i invertory  -m yum -a "name=httpd state=absent"\
+ansible web -i invertory  -m service -a "name=httpd state=started"\
+ansible web -i invertory  -m service -a "name=httpd enabled=yes"\
+ansible web -i invertory  -m service -a "name=httpd state=started enabled=yes"\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Creating the first Playbook\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 vi myfirstplay.yml\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 \
+\pard\pardeftab720\ri0\partightenfactor0
+
+\f1\b0 \cf0 ---\
+- name: install and start apache\
+  hosts: web\
+  tasks:\
+  - name: install httpd\
+    yum:\
+      name: httpd\
+      state: latest\
+  - name: start httpd\
+    service:\
+      name: httpd\
+      state: started\
+      enabled: yes\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+ansible-playbook -i invertory  myfirstplay.yml\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 remove and re-try
+\f1\b0 \
+ansible web -i invertory  -m yum -a "name=httpd state=absent"\
+\
+
+\f0\b Looping.\
+\
+\pard\pardeftab720\ri0\partightenfactor0
+
+\f1\b0 \cf0 ---\
+- name: install and start apache\
+  hosts: web\
+  tasks:\
+  - name: install httpd\
+    yum: name=\{\{item\}\} state=present\
+    with_items:\
+    - telnet\
+    - httpd\
+    - traceroute\
+    - net-tools\
+    - bind-utils\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Declaring Variables and using them
+\f1\b0 \
+\
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 ---\
+- name: Install required packages\
+  hosts: localhost\
+  vars:\
+    packages:\
+        - httpd\
+        - binutils\
+        - glib\
+        - ksh\
+\
+  tasks:\
+    - yum:\
+        name: "\{\{ item \}\}"\
+        state: present\
+      with_items: "\{\{ packages \}\}"\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Some more modules\
+\pard\pardeftab720\ri0\partightenfactor0
+
+\f1\b0 \cf0 - name: Setup web server on all nodes\
+  hosts: web\
+  tasks:\
+    - name: Update entry into /etc/resolv.conf\
+      lineinfile:\
+        path: /etc/resolv.conf\
+        line: 'nameserver 10.1.250.10'\
+\
+    - name: Create a new user\
+      user:\
+        name: web_user\
+        uid: 1040\
+        group: 100\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Multiple plays
+\f1\b0 \
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 ---\
+- name: Setup web server on all nodes\
+  hosts: web\
+  tasks:\
+    - name: Update entry into /etc/resolv.conf\
+      lineinfile:\
+        path: /etc/resolv.conf\
+        line: 'nameserver 10.1.250.10'\
+\
+    - name: Create a new user\
+      user:\
+        name: web_user\
+        uid: 1040\
+        group: 100\
+\
+- name: nginx\
+  hosts: srv\
+  tasks:\
+    - name: install epel-release\
+      yum:\
+        name: epel-release\
+        state: present\
+    - name: install nginx\
+      yum:\
+        name: nginx\
+        state: present\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 \
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Conditional statement:\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 ---\
+- name: Add name server entry if not already entered\
+  hosts: web\
+  tasks:\
+    - shell: cat /etc/resolv.conf\
+      register: command_output\
+\
+    - shell: echo "nameserver 10.0.250.10" >> /etc/resolv.conf\
+      when: command_output.stdout.find('10.0.250.10') == -1\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 reset the file
+\f1\b0 \
+scp /etc/resolv.conf webserver1:/etc/resolv.conf\
+scp /etc/resolv.conf webserver2:/etc/resolv.conf\
+\
+
+\f0\b Handler tasks\
+This is not very accurate example. \'97 Does not work\
+\
+\pard\pardeftab720\ri0\partightenfactor0
+
+\f1\b0 \cf0 - name: template configuration file\
+  template:\
+    src: template.j2\
+    dest: /etc/foo.conf\
+  notify:\
+     - restart memcached\
+     - restart apache\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\qj\partightenfactor0
+\cf0 handlers:\
+    - name: restart memcached\
+      service:\
+        name: memcached\
+        state: restarted\
+    - name: restart apache\
+      service:\
+        name: apache\
+        state: restarted\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Roles\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f1\b0 \cf0 ansible-galaxy install robertdebock.bootstrap  (gets it from ansible galaxy website)\
+\
+\pard\pardeftab720\ri0\sl276\slmult1\partightenfactor0
+
+\f0\b \cf0 Create a new role
+\f1\b0 \
+\pard\pardeftab720\ri0\partightenfactor0
+\cf0 ansible-galaxy init apache\
+\
+vi roles/apache/vars/main.yml\
+packages:\
+  - httpd\
+  - ksh\
+\
+vi roles/apache/tasks/main.yml\
+- yum:\
+    name: "\{\{ item \}\}"\
+    state: present\
+  with_items: "\{\{ packages \}\}"\
+\
+vi kumar.yml\
+---\
+- hosts: web\
+  roles:\
+    - apache\
+}
