@@ -1,0 +1,51 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+    tools { 
+        maven 'maven' 
+
+    }
+    stages {
+        stage ('Get Source Code') {
+            steps {
+                git branch: 'master', url: 'https://github.com/mydemoclass5/addressbook.git'
+            }
+        }
+        stage ('Compile App') {
+            steps {
+                sh label: '', script: 'mvn compile'
+            }
+        }
+        stage ('Code Analysis') {
+            steps {
+                sh label: '', script: 'mvn -P metrics pmd:pmd'
+            }
+        }
+        stage ('Test App') {
+            steps {
+                sh label: '', script: 'mvn test'
+            }
+        }
+        stage ('Package App') {
+            steps {
+                sh label: '', script: 'mvn package'
+            }
+        }
+        stage ('Publish Report') {
+            steps {
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'target/site', reportFiles: 'pmd.html', reportName: 'PMD Report', reportTitles: ''])
+            }
+        }
+        stage ('Archive Artifact') {
+            steps {
+                archiveArtifacts 'target/addressbook.war'
+            }
+        }
+        stage ('Deploy App') {
+            steps {
+                sh label: '', script: 'cp target/addressbook.war /usr/local/tomcat/webapps/'
+            }
+        }
+    }
+}
